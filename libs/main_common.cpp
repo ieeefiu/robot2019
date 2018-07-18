@@ -4,9 +4,13 @@
 #include <boost/format.hpp>
 #include <sstream>
 
+bool tCascade = false;
+
 static volatile sig_atomic_t keepRunning = true;
 void intHandler(int dummy) {
 	keepRunning = false;
+	if(tCascade)
+		exit(1);
 }
 bool checkSig(){
 	return (bool)keepRunning;
