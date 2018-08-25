@@ -1,7 +1,8 @@
 #include "Arduino.h"
 #include "Imu.h"
 
-Imu::Imu() {}
+Adafruit_BNO055 bno = Adafruit_BNO055(55);
+
 Imu::Imu()
 {
   /* Use external crystal for better accuracy */
