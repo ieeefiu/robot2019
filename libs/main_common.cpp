@@ -44,15 +44,19 @@ string Object::getFileName(){ //We'll implement this later
 
 void Object::useFilename(string name){
 	//Deleting any extension still prevailing in the name
-	auto dotIndex = name.find(".");
-	if(dotIndex != -1){ 
+	auto dotIndex = name.find_first_of('.');
+	if(dotIndex != -1)
 		name.substr(dotIndex, name.length() - dotIndex);
-	}
+	
+	dotIndex = name.find_last_of('-');
+	if(dotIndex != -1)
+		name.substr(0, dotIndex + 1);
+	
 	//Deleting any "other" extension still prevailing in the name
-	dotIndex = name.find("-");
-	if(dotIndex != -1){ 
-		name.substr(dotIndex, name.length() - dotIndex);
-	}
+	// dotIndex = name.find("-");
+	// if(dotIndex != -1) 
+	// 	name.substr(dotIndex, name.length() - dotIndex);
+	
 	
 	vector<string> strings;
 	boost::split(strings, name, boost::is_any_of("_"));
@@ -70,13 +74,13 @@ void Object::useFilename(string name){
 
 vector<Object> Object::getObjects(string name){
 	vector<string> objectStrings;
-	// cout << "Splitting " << name << endl;
-	boost::split(objectStrings, name, boost::is_any_of("|"));
-	// cout << "Done splitting " << endl;
+	
+	boost::split(objectStrings, name, boost::is_any_of("+"));
+	
 	vector<Object> objects;
-	for(auto it = objectStrings.begin(); it!=objectStrings.end(); ++it){
+	for(auto it = objectStrings.begin(); it!=objectStrings.end(); ++it)
 		objects.push_back(Object(*it));
-	}
+	
 	return objects;
 }
 
@@ -84,33 +88,18 @@ string Object::getString(vector<Object> objects){
 	string r = "";
 	string l = "";
 	for(auto it = objects.begin(); it != objects.end(); ++it){
-		if(l != "")r+= "|";
+		if(l != "")r+= "+";
 		l = (*it).getFileName();
 		r += l;
 	}
 	return r;
 }
 
-cv::Mat writeObjects(cv::Mat src, vector<Object> objs){
-	cv::Mat out;
-	src.copyTo(out);
-	
-	const int textBackW = 100, textBackH = 40;
-	
-	for(auto it = objs.begin(); it != objs.end(); ++it){
-		cv::rectangle(out, cv::Rect2i(it->x, it->y, it->w, it->h), cv::Scalar(0), 2);
-		/*
-		cv::rectangle(out, cv::Rect2i(
-									it->x - it->w + textBackW / 2, 
-									it->y - it->h - textBackH / 2, 
-									textBackW, textBackH), 
-									cv::Scalar(0,0,0), CV_FILLED);
-		*/
-	}
-	
-	return out;
+void writeObjects(cv::Mat src, vector<Object> objs){
+	for(auto it = objs.begin(); it != objs.end(); ++it)
+		cv::rectangle(src, cv::Rect2i(it->x, it->y, it->w, it->h), cv::Scalar(0), 2);
 }
-cv::Mat writeObjects(cv::Mat src, Object obj){
+void writeObjects(cv::Mat src, Object obj){
 	vector<Object> objs = {obj};
-	return writeObjects(src, objs);
+	writeObjects(src, objs);
 }

@@ -100,21 +100,10 @@ void nn::importFile(fs::path cacheDir, fs::path _path, vector<Object> objects){
 	getCountFile(cacheDir);
 	
 	auto mat = cv::imread (_path.string());
-	
-	cv::Mat trainMat;
-	
-	trainMat = ip::getTrainMat(mat);
-	
-	//This function will copy the image to a new location
-	cv::imshow("Importing..", writeObjects(mat, objects));
-	// #if DEBUG
-	// waitKey(30);
-	// #else
-	waitKey(5);
-	// #endif
+	cv::Mat trainMat = ip::getTrainMat(mat); // Process to get train
 	
 	//Saving file to cache
-	imwrite((cacheDir.string() + "/" + Object::getString(objects) + "-" + to_string(import_count++) + ".jpg").c_str(), trainMat);
+	imwrite((cacheDir.string() + "/" + to_string(import_count++) + "-" + Object::getString(objects) + ".jpg").c_str(), trainMat);
 }
 // * --------------------------------------------
 
@@ -122,7 +111,7 @@ vector<TrainData> train_data;
 
 void nn::readFile(fs::path filePath){
 	auto matRaw = cv::imread (filePath.string());
-	Mat mat;resize(matRaw, mat, Size(resx, resy), 0, 0, CV_INTER_AREA);
+	Mat mat;resize(matRaw, mat, Size(resx, resy), 0, 0, INTER_AREA);
 	// cout << matRaw.size() << endl;
 	// cout << mat.size() << endl;
 	train_data.push_back(TrainData(mat, Object::getObjects(filePath.filename().string())[0], matRaw.cols, matRaw.rows));
@@ -171,7 +160,7 @@ struct fann* nn::ann_load(fs::path nn_path){
 
 Object nn::execute(Mat mat, struct fann* ann, int actual_w, int actual_h){
 	Object o;
-	
+
 	//Resizing image to correct input
 	Mat res(mat);
 	if(mat.size().area() != ann->num_input){
@@ -183,7 +172,6 @@ Object nn::execute(Mat mat, struct fann* ann, int actual_w, int actual_h){
 		}
 	}
 	
-	
 	fann_type *calc_out;
 	fann_type input[ann->num_input];
 	
@@ -192,7 +180,7 @@ Object nn::execute(Mat mat, struct fann* ann, int actual_w, int actual_h){
 	for(int i = 0;i<inputs.size();i++){
 		input[i] = inputs[i];
 	}
-	
+
 	calc_out = fann_run(ann, input);
 	
 	//Collect output
@@ -201,20 +189,17 @@ Object nn::execute(Mat mat, struct fann* ann, int actual_w, int actual_h){
 	o.w = calc_out[2] * actual_w;
 	o.h = calc_out[3] * actual_h;
 	
-	// printf("Raw: %f  %f  %f  %f\n", calc_out[0], calc_out[1], calc_out[2], calc_out[3]);
-	
-	delete calc_out;
-	
 	return o;
 }
 
 Object nn::execute_test_cube_nn(Mat mat, int actual_w, int actual_h, fs::path cubeNNPath){
 	auto ann = ann_load(cubeNNPath);
-	Object o;
-	if(ann){
-		o = execute(mat, ann, actual_w, actual_h);
-		fann_destroy(ann);
-	}
+	// Object o;
+	// if(ann){
+	// cout << "		Executing" << endl;
+	auto o = execute(mat, ann, actual_w, actual_h);
+	fann_destroy(ann);
+	// }
 	return o;
 }
 // vector<Object> nn::execute(Mat mat){

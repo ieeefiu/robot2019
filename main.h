@@ -14,6 +14,8 @@ const string cache_dir_name =			"cache";
 const string train_data_dir_name =		"train_data";
 const string nn_dir_name = 				"neural_networks";
 
+const auto font_face = cv::FONT_HERSHEY_SIMPLEX;
+
 static const int resx = 89, resy = 50;
 
 class Object{
@@ -32,8 +34,8 @@ class Object{
 		static vector<Object> getObjects(string name);
 		static string getString(vector<Object> objects);
 		
-		int x, y; //Position of the object in the screen
-		int w, h; //The width and height of the object in the screen
+		int x = 0, y = 0; //Position of the object in the screen
+		int w = 0, h = 0; //The width and height of the object in the screen
 		// void shift(float shift){
 		// 	x+=shift;
 		// 	y+=shift;
@@ -53,8 +55,8 @@ class Object{
 bool generalFolder(string name);
 
 //To make an overlay into the given Mat that shows all objects, their identified color and type
-cv::Mat writeObjects(cv::Mat src, vector<Object> objs);
-cv::Mat writeObjects(cv::Mat src, Object objs);
+void writeObjects(cv::Mat src, vector<Object> objs);
+void writeObjects(cv::Mat src, Object objs);
 
 
 // cv::Mat getRGB();
